@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.crypto.SecretKey;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,16 +26,18 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
+import com.bolsadeideas.springboot.app.auth.filter.JWTAuthenticationFilter;
+
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-	public JWTAuthorizationFilter(AuthenticationManager authenticationManager) {
+	public JWTAuthorizationFilter(final AuthenticationManager authenticationManager) {
 		super(authenticationManager);
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+	protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain)
 			throws IOException, ServletException {
-		String header = request.getHeader("Authorization");
+		final String header = request.getHeader("Authorization");
 
 		if (!requiresAuthentication(header)) {
 			chain.doFilter(request, response);
@@ -45,9 +48,9 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 		Claims token = null;
 		try {
 			token = Jwts.parserBuilder()
-			.setSigningKey(Keys.secretKeyFor(SignatureAlgorithm.HS512)).build()
+			.setSigningKey(JWTAuthenticationFilter.secretKey).build()
 			.parseClaimsJws(header.replace("Bearer ", "")).getBody();
-			validoToken = true;
+			validoToken = true; 
 		} catch (JwtException | IllegalArgumentException e) {
 
 			validoToken = false;
@@ -56,10 +59,10 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 		UsernamePasswordAuthenticationToken authentication = null;
 		
 		if(validoToken) {
-			String username = token.getSubject();
-			Object roles = token.get("authorities");
+			final String username = token.getSubject();
+			final Object roles = token.get("authorities");
 			
-			Collection<? extends GrantedAuthority> authorities = Arrays.asList(new ObjectMapper()
+			final Collection<? extends GrantedAuthority> authorities = Arrays.asList(new ObjectMapper()
 					.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthoritiesMixin.class)
 					.readValue(roles.toString().getBytes(), SimpleGrantedAuthority[].class));
 					
@@ -71,7 +74,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
 	}
 
-	protected boolean requiresAuthentication(String header) {
+	protected boolean requiresAuthentication(final String header) {
 		if (header == null || !header.startsWith("Bearer ")) {
 			return false;
 		}

@@ -33,6 +33,8 @@ import io.jsonwebtoken.security.Keys;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+	public static final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+
 	private AuthenticationManager authenticationManager;
 	
 	public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -79,7 +81,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		return authenticationManager.authenticate(authToken);
 	}
 
-	public final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+	
 	
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
