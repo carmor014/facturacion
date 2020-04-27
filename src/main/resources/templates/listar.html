@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://thymeleaf.org/extras/spring-security">
 <head th:replace="layout/layout :: head">
 <!--  Se quita todo el head con las etiquetas de thymelaf
 <meta charset="UTF-8">
@@ -44,36 +44,43 @@ Este fragmeto tambien lo reemplazamos por el header
 					 -->
 
 				<h4 class="card-title">
-					<a th:href="@{/form}" class="btn btn-primary btn-xs">crear
+					<a sec:authorize="hasRole('ROLE_ADMIN')"  th:href="@{/form}" class="btn btn-primary btn-xs">crear
 						cliente</a>
+					<a th:href="@{'/listar'(format=csv)}"
+						class="btn btn-success btn-xs float-right">CSV</a>	
+					<a th:href="@{'/listar'(format=xml)}"
+						class="btn btn-outline-success btn-xs float-right">XML</a>		
+					<a th:href="@{'/listar'(format=json)}"
+						class="btn btn-outline-warning btn-xs float-right">JSON</a>			
+						
 				</h4>
 
 				<table class="table table-striped ">
 					<thead>
 						<tr>
-							<th>id</th>
-							<th>nombre</th>
-							<th>apellido</th>
-							<th>email</th>
-							<th>fecha</th>
-							<th>crear factura</th>
-							<th>editar</th>
-							<th>eliminar</th>
+							<th sec:authorize="hasRole('ROLE_USER')">id</th>
+							<th th:text="#{text.cliente.nombre}">nombre</th>
+							<th th:text="#{text.cliente.apellido}">apellido</th>
+							<th th:text="#{text.cliente.email}">email</th>
+							<th th:text="#{text.cliente.createAt}">fecha</th>
+							<th sec:authorize="hasRole('ROLE_ADMIN')">crear factura</th>
+							<th sec:authorize="hasRole('ROLE_ADMIN')">editar</th>
+							<th sec:authorize="hasRole('ROLE_ADMIN')">eliminar</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr th:each="cliente: ${clientes}">
 							<!--  <td th:text="${cliente.id}"></td>-->
-							<td><a class="btn btn-primary btn-xs"  th:href="@{/ver/} + ${cliente.id}"  th:text="${cliente.id}"></a></td>
+							<td sec:authorize="hasRole('ROLE_USER')"><a class="btn btn-primary btn-xs"  th:href="@{/ver/} + ${cliente.id}"  th:text="${cliente.id}"></a></td>
 							<td th:text="${cliente.nombre}"></td>
 							<td th:text="${cliente.apellido}"></td>
 							<td th:text="${cliente.email}"></td>
 							<td th:text="${cliente.createAt}"></td>
-							<td><a class="btn btn-success btn-xs"  th:href="@{'/factura/form/' + ${cliente.id}}" th:text="'crear factura'"></a></td>
+							<td sec:authorize="hasRole('ROLE_ADMIN')"><a class="btn btn-success btn-xs"  th:href="@{'/factura/form/' + ${cliente.id}}" th:text="'crear factura'"></a></td>
 							
-							<td><a class="btn btn-primary btn-xs"
+							<td sec:authorize="hasRole('ROLE_ADMIN')"><a class="btn btn-primary btn-xs"
 								th:href="@{/form/} + ${cliente.id}" th:text="'editar'"></a></td>
-							<td><a class="btn btn-danger btn-xs"
+							<td sec:authorize="hasRole('ROLE_ADMIN')"><a class="btn btn-danger btn-xs"
 								th:href="@{/eliminar/} + ${cliente.id}" th:text="'eliminar'"
 								onclick="return confirm('Estas seguros que quieres eliminar?');"></a></td>
 						</tr>
@@ -87,17 +94,7 @@ Este fragmeto tambien lo reemplazamos por el header
 	</div>
 
 	<footer th:replace="layout/layout :: footer"></footer>
-	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-		integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-		crossorigin="anonymous"></script>
-	<script
-		src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-		integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-		crossorigin="anonymous"></script>
-	<script
-		src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-		integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-		crossorigin="anonymous"></script>
+
 </body>
 </html>
 
